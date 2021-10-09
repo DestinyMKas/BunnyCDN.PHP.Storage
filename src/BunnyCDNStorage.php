@@ -141,8 +141,10 @@ class BunnyCDNStorage
 
     public function closeCurl()
     {
-        curl_close($this->ch);
-        $this->ch = null;
+        if ($this->ch) {
+            curl_close($this->ch);
+            $this->ch = null;
+        }
     }
 
     /**
