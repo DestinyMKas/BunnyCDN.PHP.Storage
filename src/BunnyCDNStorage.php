@@ -23,6 +23,8 @@ class BunnyCDNStorage
      */
     public $storageZoneRegion = 'de';
 
+    private $ch;
+
     /**
      * Initializes a new instance of the BunnyCDNStorage class
      *
@@ -35,6 +37,11 @@ class BunnyCDNStorage
         $this->storageZoneName = $storageZoneName;
         $this->apiAccessKey = $apiAccessKey;
         $this->storageZoneRegion = $storageZoneRegion;
+    }
+
+    public function __destruct()
+    {
+        $this->closeCurl();
     }
 
     /**
@@ -116,6 +123,28 @@ class BunnyCDNStorage
         return $this->sendHttpRequest($normalizedPath, 'GET', NULL, NULL, $fileStream);
     }
 
+    public function initCurl()
+    {
+        if (!$this->ch) {
+            $this->ch = curl_init();
+            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, 0);
+            curl_setopt($this->ch, CURLOPT_FAILONERROR, 0);
+
+            curl_setopt($this->ch, CURLOPT_HTTPHEADER, [
+                "AccessKey: {$this->apiAccessKey}",
+            ]);
+        }
+
+        return $this->ch;
+    }
+
+    public function closeCurl()
+    {
+        curl_close($this->ch);
+        $this->ch = null;
+    }
+
     /**
      * Sends a HTTP Request using cURL
      *
@@ -129,15 +158,9 @@ class BunnyCDNStorage
      */
     private function sendHttpRequest($url, $method = 'GET', $uploadFile = NULL, $uploadFileSize = NULL, $downloadFileHandler = NULL)
     {
-        $ch = curl_init();
+        $ch = $this->initCurl();
         curl_setopt($ch, CURLOPT_URL, $this->getBaseUrl() . $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
-        curl_setopt($ch, CURLOPT_FAILONERROR, 0);
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            "AccessKey: {$this->apiAccessKey}",
-        ));
         if ($method === 'PUT' && $uploadFile != NULL) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_UPLOAD, 1);
@@ -154,7 +177,6 @@ class BunnyCDNStorage
         $output = curl_exec($ch);
         $curlError = curl_errno($ch);
         $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
 
         if ($curlError) {
             throw new BunnyCDNStorageException('An unknown error has occurred during the request. Status code: ' . $curlError);
