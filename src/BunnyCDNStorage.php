@@ -170,6 +170,8 @@ class BunnyCDNStorage
             curl_setopt($ch, CURLOPT_INFILESIZE, $uploadFileSize);
         } else if ($method !== 'GET') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        } else {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, NULL);
         }
 
         if ($method === 'GET' && $downloadFileHandler != NULL) {
