@@ -103,6 +103,24 @@ class BunnyCDNStorage
     }
 
     /**
+     * Upload a data to the storage
+     *
+     * @param $data
+     * @param $path
+     * @return bool|string
+     */
+    public function uploadData(string $data, string $path)
+    {
+        // Open stream in memory
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $data);
+        fseek($stream, 0);
+        $dataLength = strlen($data);
+        $normalizedPath = $this->normalizePath($path);
+        return $this->sendHttpRequest($normalizedPath, 'PUT', $stream, $dataLength);
+    }
+
+    /**
      * Download the object to a local file
      *
      * @param $path
