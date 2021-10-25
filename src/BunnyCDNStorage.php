@@ -117,7 +117,9 @@ class BunnyCDNStorage
         fseek($stream, 0);
         $dataLength = strlen($data);
         $normalizedPath = $this->normalizePath($path);
-        return $this->sendHttpRequest($normalizedPath, 'PUT', $stream, $dataLength);
+        $response = $this->sendHttpRequest($normalizedPath, 'PUT', $stream, $dataLength);
+        fclose($stream);
+        return $response;
     }
 
     /**
