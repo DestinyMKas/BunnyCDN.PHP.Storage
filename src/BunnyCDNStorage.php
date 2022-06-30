@@ -143,6 +143,26 @@ class BunnyCDNStorage
         return $this->sendHttpRequest($normalizedPath, 'GET', NULL, NULL, $fileStream);
     }
 
+    /**
+     * Download the object to a string
+     *
+     * @param $path
+     * @param $localPath
+     * @return bool|string
+     * @throws BunnyCDNStorageException
+     */
+    public function downloadData($path)
+    {
+        // Open the local file
+        $stream = fopen('php://memory', 'r+');
+
+        $normalizedPath = $this->normalizePath($path);
+        $this->sendHttpRequest($normalizedPath, 'GET', NULL, NULL, $stream);
+
+        fseek($stream, 0);
+        return stream_get_contents($stream);
+    }
+
     public function initCurl()
     {
         if (!$this->ch) {
