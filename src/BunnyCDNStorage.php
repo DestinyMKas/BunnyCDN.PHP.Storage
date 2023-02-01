@@ -170,6 +170,8 @@ class BunnyCDNStorage
             curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, 0);
             curl_setopt($this->ch, CURLOPT_FAILONERROR, 0);
+            curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, 30);
+            curl_setopt($this->ch, CURLOPT_TIMEOUT, 30);
 
             curl_setopt($this->ch, CURLOPT_HTTPHEADER, [
                 "AccessKey: {$this->apiAccessKey}",
