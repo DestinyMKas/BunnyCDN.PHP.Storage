@@ -160,7 +160,10 @@ class BunnyCDNStorage
         $this->sendHttpRequest($normalizedPath, 'GET', NULL, NULL, $stream);
 
         fseek($stream, 0);
-        return stream_get_contents($stream);
+        $data = stream_get_contents($stream);
+        fclose($stream);
+
+        return $data;
     }
 
     public function initCurl()
